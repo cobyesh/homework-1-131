@@ -1,0 +1,100 @@
+---
+title: "131 HW01"
+author: "Coby Eshaghian"
+date: "4/3/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**Machine Learning Main Ideas**
+
+1) Define supervised and unsupervised learning. What are the difference(s) between them?
+
+Supervised learning means each predictor variable $X_i$ has a response variable $Y_i$, whereas unsupervised learning has predictor variables, but we don't have an associated response variable. Hence, for unsupervised learning, we cannot perform a linear regression model, as there is nothing to predict. Hence, it earns the name "unsupervised" because we are unable to "supervise" our analysis.
+
+2) Explain the difference between a regression model and a classification model, specifically in the context of machine learning.
+
+A regression model typically uses qualitative predictors, regardless of whether they are discrete or continuous. For instance, someone's age can be from 0 to infinity, and anything in between, including irrational numbers. However, in classification models, we are looking at qualitative predictors, otherwise known as categorical. In those, we have already established what our possible inputs are, and they are finite. 
+
+3) Name two commonly used metrics for regression ML problems. Name two commonly used metrics for classification ML problems.
+
+For regression ML problems, we typically use mean squared error and mean absolute error.
+However, if we're dealing with a classification or binary problem, confusion matrix or log-loss can provide an idea of the fit of our model.
+
+4) As discussed, statistical models can be used for different purposes. These purposes can generally be classified into the following three categories. Provide a brief description of each. (from lecture slides 2)
+
+*Descriptive models*: Descriptive models use the best fit model to demonstrate a trend in the data, such as a line on a scatterplot. This allows the viewer to clearly see the point the author is trying to make. 
+
+*Inferential models*: Inferential models are typically used to test theories, and to make a broad hypothesis about the relationship between the predictors and outcomes
+
+*Predictive models*: Predictive models seek to show which combination of predictors and response fit the data best, aiming to minimize reducible error, without an interest in hypothesis tests.
+
+5) Predictive models are frequently used in machine learning, and they can usually be described as either mechanistic or empirically-driven. Answer the following questions.
+
+*Define mechanistic. Define empirically-driven. How do these model types differ? How are they similar?*
+Mechanistic models are typically guided by theory, whereas empircally-driven models are derived by past results or experiments, also referred to as observations. They are similar because every model must includes aspects of both. For example, we can guide our predictions by mathematically theory, such as the shape of a parabola. However, we verify these results in conducting experiments and observing the confirmation of these theories.
+
+*In general, is a mechanistic or empirically-driven model easier to understand? Explain your choice.*
+Empirically-driven models may be easier to understand becasue they're guided by observations. Hence, if I were presenting a model to someone, I can say that I've conducted multiple controlled experiments and these are the outcomes, rather than guiding something by a complex theory that many may not be able to understand. However, the choice of utilizing one or the other varies significantly by the subject one seeks to model. If it's in a field where much is already known, it may be beating a dead horse (so to speak) by conducting experiments, only to further affirm a theory that's been tested time and time again. 
+
+*Describe how the bias-variance tradeoff is related to the use of mechanistic or empirically-driven models.*
+
+The bias-variance tradeoff applies to the use of mechanistic models because in models that are guided by theory, also known as mechanistic, we may find more overfitting as we seek to make sense of the data. On the other hand, in doing so, we drastically increase the variance of the model. On the other hand, on an empirical model, we may make the same mistake, where the variance may be very large as we conduct further experiments, because we are introducing new data that may not fit into the sample we've modeled to.
+
+6) A political candidate’s campaign has collected some detailed voter history data from their constituents. The campaign is interested in two questions. Classify each question as either predictive or inferential. Explain your reasoning for each.
+
+*Given a voter’s profile/data, how likely is it that they will vote in favor of the candidate?*
+Predictive, because we are looking at the voter's past data to predict their future behavior, such as voting habits, etc.
+*How would a voter’s likelihood of support for the candidate change if they had personal contact with the candidate?*
+Inferential, because we are making an estimate based on a situation in which we have no prior experience. Hence, we may use their behavior in a controlled experiment to make an inference about how they would react in a certain situation. 
+
+**Exploratory Data Analysis**
+
+1) We are interested in highway miles per gallon, or the hwy variable. Create a histogram of this variable. Describe what you see/learn.
+```{r}
+library(ggplot2)
+ggplot(mpg, aes(x = hwy)) + geom_histogram()
+```
+
+We can see that majority of vehicles are between 26-27 mpg, with the second most at around 11-12 mpg. Furthermore, very few have more than 35mpg.
+
+2) Create a scatterplot. Put hwy on the x-axis and cty on the y-axis. Describe what you notice. Is there a relationship between hwy and cty? What does this mean?
+```{r}
+ggplot(mpg, aes(x=hwy,y=cty)) + geom_point()
+```
+
+We can see a direct correlation between hwy and cty, which allows one to deduce that if a vehicle has a high hwy, then it's likely that it has a relatively high cty mpg as well, and vice versa.
+
+3) Make a bar plot of manufacturer. Flip it so that the manufacturers are on the y-axis. Order the bars by height. Which manufacturer produced the most cars? Which produced the least?
+```{r}
+ggplot(mpg, aes(x=reorder(manufacturer,manufacturer,function(x)-length(x)))) + geom_bar() + coord_flip() +labs(x='manufacturer')
+```
+
+Dodge produced the most, whereas Lincoln produced the least.
+
+4) Make a box plot of hwy, grouped by cyl. Do you see a pattern? If so, what?
+```{r}
+ggplot(mpg) + geom_boxplot(aes(x=as.factor(cyl), y = hwy)) + labs(x= 'cyl')
+
+```
+
+There's a general trend where we can see, as cylinders increase, hwy mpg decreases, which is expected as more cylinders will consume more fuel per gallon.
+
+5) Use the corrplot package to make a lower triangle correlation matrix of the mpg dataset. (Hint: You can find information on the package here.)
+
+Which variables are positively or negatively correlated with which others? Do these relationships make sense to you? Are there any that surprise you?
+```{r}
+library(corrplot)
+nummpg <- mpg[,sapply(mpg,is.numeric)]
+nummpg$displ <- NULL
+corrplot(cor(nummpg), method = 'number', type = 'lower')
+```
+
+I'm surprised that hwy and city are not as correlated, because I'd assume mpg standards would be stricter as time goes on, so as year increases, those would as well. On the other hand, I'm not surprised about the negative correlation between cyl and hwy/city, given that as the number of cylinders increases, the general mpg decreases. Obviously, a V6 is going to consume less fuel than a V8.
+
+Positively correlated: hwy and cty (and cyl and year, but barely);
+Negatively correlated: cyl and hwy/cty (and year with cty/hwy)
+
